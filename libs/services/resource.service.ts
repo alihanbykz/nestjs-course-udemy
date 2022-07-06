@@ -1,6 +1,7 @@
 import { AuditModel } from 'tools/models/audit.model';
 import { Model } from 'mongoose';
 import { FilterModel } from 'tools/models/filter.model';
+import { skip } from 'rxjs';
 
 type NewType = FilterModel;
 
@@ -8,9 +9,9 @@ export class ResourceService<T extends any, C extends any, U extends any> {
   constructor(protected readonly mongoModel: Model<T>) {}
 
   generalSearchQuery = {
-    page: 0,
+    page: 1,
     size: 10,
-    sort: 'ASC',
+    sort: 'asc',
     sortBy: '_id',
     queryText: '',
     searchBy: 'name',
@@ -27,32 +28,38 @@ export class ResourceService<T extends any, C extends any, U extends any> {
     return await createdModel.save();
   }
 
- async findAll(): Promise<any[]> {
-    /* if (Object.keys(query).length !== 0) {
-
+ async findAll(query?: FilterModel): Promise<any[]> {
+    if (Object.keys(query).length !== 0) {
+      console.log("query",query);
       const searchValue = await {...this.generalSearchQuery , ...query};
+      console.log("searchValue",searchValue)
       const userRegex = new RegExp(searchValue.queryText, 'i');
-
+      console.log("userRegex",userRegex);
+      console.log("sortby", searchValue.sortBy);
+      console.log("sort", searchValue.sort);
+      console.log("query text", searchValue.queryText);
       return await this.mongoModel
-      .find({
-        [searchValue.searchBy]: userRegex,
-      })
+      .find(
+        // [searchValue.searchBy], userRegex
+      )
       .limit(Math.max(0, searchValue.size))
       .skip(searchValue.size * (searchValue.page - 1))
-      .sort([[`${searchValue.sortBy}`, searchValue.sort]])
+      .sort(`${searchValue.sortBy} ${searchValue.sort}`)
       .exec();
-
-   } else {
+    } else {
       const count = await this.mongoModel.countDocuments({}).exec();
-      const data = await this.mongoModel.find().exec();
+      const data = await this.mongoModel.find()
+      .limit(Math.max(0, this.generalSearchQuery.size))
+      .skip(this.generalSearchQuery.size * (this.generalSearchQuery.page - 1))
+      .sort(`${this.generalSearchQuery.sortBy} ${this.generalSearchQuery.sort}`)
+      .exec();
       return await[{
         success : true,
         size: this.generalSearchQuery.size,
         total : count,
         data,
       }];
-    } */
-      return await this.mongoModel.find().exec();
+    } 
   }
 
   async findOne(id: string): Promise<T> {

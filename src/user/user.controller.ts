@@ -24,8 +24,8 @@ export class UserController {
     }
 
     @Get()   // API endpoint get ile  istek alıyorsa bu endpoint ile veri okunabilir
-    async getAllUsers(): Promise<UserModel[]>{
-        return await this.userService.findAll();
+    async getAllUsers(@Query() query: FilterModel): Promise<UserModel[]>{
+        return await this.userService.findAll(query);
     }
 
     @Get(':id')
