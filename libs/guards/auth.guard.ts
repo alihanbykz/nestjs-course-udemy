@@ -11,7 +11,7 @@ export class AuthGuard implements CanActivate{
         private readonly groupService: GroupService,
     ){}
 
-    canActivate(context: ExecutionContext): boolean {
+    async canActivate(context: ExecutionContext): Promise<boolean> {
         const allowedRoles = this.reflector.get<string[]>('roles', context.getHandler());
         console.log("allowedRoles",allowedRoles);
         if(!allowedRoles) {
@@ -22,8 +22,8 @@ export class AuthGuard implements CanActivate{
         console.log("request:",request.user.user._id)
         // console.log("request",request.user.user);
         const user = request.user.user;
-        // console.log(user);
-        const allowed = this.isAllowed(allowedRoles, user.roles, user.groups);
+        console.log(user);
+        const allowed =  await this.isAllowed(allowedRoles, user.roles, user.groups);
         console.log("allowed",allowed);
     
         if (!allowed) {
@@ -36,7 +36,7 @@ export class AuthGuard implements CanActivate{
     async isAllowed(allowedRoles,userRoles:RoleModel[],userGroups:GroupModel[]){
         const allUserRoles = [];
         userRoles.map(data => {
-            allUserRoles.push(data.name);   // Burada hata var.RoleModel içinden ilk elemanı alıyor. 
+            allUserRoles.push(data.name);   // Login yaptığımız kullanıcı
             console.log(data);
             console.log("all user roles", allUserRoles);
 
@@ -56,9 +56,12 @@ export class AuthGuard implements CanActivate{
                 });
             })
         );
+        console.log("allowed aa roles",allowedRoles);
         console.log("all user roles",allUserRoles);
 
-        const hasRole = allUserRoles.some(role =>{console.log("roles",role), allowedRoles.includes(role)});
+        const hasRole = allUserRoles.some(role => allowedRoles.includes(role));
+        console.log("hasRole", hasRole);
+        
         return hasRole;
     }
 }

@@ -4,7 +4,7 @@ import { RoleModel } from "./role.model";
 import * as mongoose from 'mongoose';
 
 export class UserModel {
-    id : string;
+    _id : string;
     name: string;
     surname: string;
     image: string;
