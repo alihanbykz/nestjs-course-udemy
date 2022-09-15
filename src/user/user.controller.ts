@@ -29,9 +29,9 @@ export class UserController {
     }
 
     @Get(':id')
-    //@Roles('Developer')
-    async getUser(@Param() params):Promise<UserModel>{
-        return await this.userService.findOne(params.id);
+    @Roles('Developer')
+    async getUser(@Param('id') id:string):Promise<UserModel>{
+        return await this.userService.findOne(id);
     }
 
     @Put(':id')
